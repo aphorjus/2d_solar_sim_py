@@ -5,13 +5,16 @@ from Vec2D import Vec2D
 
 class Orb:
 
-	def __init__(self, x=0, y=0, size=30, color=arcade.color.WHITE):
+	def __init__(self, x, y, size=30, color=arcade.color.WHITE, orbiting=None):
 		self.pos = Vec2D(x,y)
 		self.size = size
 		self.color = color
 
 		self.mass = 4*3.14*((size/2)*(size/2))
 		self.vel = Vec2D(0,0)
+		if orbiting is not None:
+			self.vel = self.get_orbital_vel(orbiting[0], orbiting[1])
+
 		self.acc = Vec2D(0,0)
 		self.trust = 1.0
 
@@ -55,7 +58,9 @@ class Orb:
 		return self.get_dist_vec(other).get_mag()
 
 	def is_colliding(self, other):
-		return self != other and self.get_dist(other) < self.size/2
+
+		return (self != other and 
+					  self.get_dist(other) < (self.size/2)+(other.size/2))
 
 	# def collide_elastic(self, other):
 	# 	term_one = ((2*other.vel)/(self.mass+other.mass))
@@ -65,7 +70,6 @@ class Orb:
 	def absorb(self, other):
 		self.mass += other.mass
 		self.size = 2*math.sqrt(self.mass/(4*3.14))		
-
 
 	def slow(self):
 		if(self.vel.get_mag() < 1):
@@ -82,6 +86,9 @@ class Orb:
 		return dist_vec.rotate(math.radians(90)).set_mag(mag)+other.vel
 
 	def orbit(self, other, G):
+		if self == other:
+			return
+
 		o_vel = self.get_orbital_vel(other, G)
 		s_vel = self.vel
 		correction = o_vel - s_vel
@@ -94,3 +101,11 @@ class Orb:
 	def update(self):
 		self.vel += self.acc
 		self.pos += self.vel
+
+
+
+class Ship(Orb):
+	def __init__(self, x, y, size=10, color=arcade.color.WHITE, orbiting=None):
+		super().__init__(x, y, size, color)
+		if orbiting is not None:
+			self.vel = self.get_orbital_vel(orbiting[0], orbiting[1])
