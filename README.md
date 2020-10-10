@@ -10,9 +10,9 @@ https://arcade.academy/installation.html
 
 # Usage
 
-### running the program
+### Running the Program
 
-To run the program, make sure the arcade library is installed and that you are using python3.6 or later. Then in the terminal simply run: 
+To run the program, make sure the arcade library is installed and that you are using python3.6 or later. Then, in the terminal, simply run: 
 
 ```
 $ python space.py
