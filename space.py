@@ -102,7 +102,7 @@ class Game(arcade.Window):
 
 		arcade.set_background_color(arcade.color.BLACK)
 		self.bodies = []
-		# self.ships = []
+		self.ships = []
 		self.orb = None
 		self.dest = None
 		self.center_mass = None
@@ -121,7 +121,6 @@ class Game(arcade.Window):
 		self.window_height = HEIGHT
 
 		self.zoom_speed = 20
-
 		self.map_on = True
 
 
@@ -166,23 +165,25 @@ class Game(arcade.Window):
 	def update(self, delta_time):
 
 		## updating gravitational effects ##
+		forces = [Vec2D(0,0) for _ in range(len(self.bodies))]
 
-		for bodie in self.bodies:
+		for i, bodie in enumerate(self.bodies):
 			for other_bodie in self.bodies:
 				if bodie != other_bodie and not isinstance(other_bodie, Ship):
-						bodie.apply_force_from(other_bodie, G)
+						forces[i] += bodie.get_force_applyed(other_bodie, G)
 
-		# for ship in self.ships:
-		# 	for bodie in self.bodies:
-		# 		ship.apply_force_from(bodie, G)
+		for ship in self.ships:
+			for bodie in self.bodies:
+				ship.apply_force_from(bodie, G)
 
 		##  ############################  ##
 
-		for bodie in self.bodies:
+		for i, bodie in enumerate(self.bodies):
+			bodie.apply_force(forces[i])
 			bodie.update()
 
-		# for ship in self.ships:
-		# 	ship.update()
+		for ship in self.ships:
+			ship.update()
 
 		
 		## calculating collisions and collision effects ##
@@ -196,6 +197,10 @@ class Game(arcade.Window):
 						absorbed.append(other_bodie)
 						if self.orb == other_bodie:
 							self.orb = bodie
+
+			for ship in self.ships:
+				if bodie.is_colliding(ship):
+					bodie.absorb(ship)
 
 		for bodie in absorbed:
 			self.bodies.remove(bodie)
@@ -215,6 +220,11 @@ class Game(arcade.Window):
 			self.orb.pos.y - self.window_height/2,
 			self.orb.pos.y + self.window_height/2
 		)
+
+
+	########################
+	##			CONTROLS 			##
+	########################
 
 	def apply_button_effects(self):
 		if self.buttons_down['lmb']:
@@ -248,7 +258,7 @@ class Game(arcade.Window):
 			size = self.dest.size
 			new_orb = Ship(x+(size*2),y+(size*2))
 			new_orb.vel = new_orb.get_orbital_vel(self.dest, G)
-			self.bodies.append(new_orb)
+			self.ships.append(new_orb)
 
 		if key == arcade.key.V:
 			self.buttons_down['v'] = True

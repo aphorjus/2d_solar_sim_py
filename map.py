@@ -22,11 +22,11 @@ def draw_map(bodies, window_width, window_height):
 	map_shape_list = arcade.ShapeElementList()
 
 	view = arcade.get_viewport()
-	map_width = window_width/3.5
-	map_height = window_height/3.5
-	map_padding = window_height/80
-	map_center_x = view[1]-(map_width/2+map_padding)
-	map_center_y = view[2]+(map_height/2+map_padding)
+	map_width 		= window_width/3.5
+	map_height 		= window_height/3.5
+	map_padding 	= window_height/80
+	map_center_x 	= view[1]-(map_width/2+map_padding)
+	map_center_y 	= view[2]+(map_height/2+map_padding)
 	#view[0] = left, view[1] = right, view[2] = bottom, view[3] = top
 	rec = arcade.create_rectangle_filled(
 		map_center_x, map_center_y, 
@@ -65,5 +65,6 @@ def draw_map(bodies, window_width, window_height):
 															map_pos.x, map_pos.y, 
 															window_width/300, window_width/300, 
 															bodie.color ))
+		# map_shpe_list.append( arcade. )
 
 	map_shape_list.draw()

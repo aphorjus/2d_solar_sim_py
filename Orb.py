@@ -16,7 +16,7 @@ class Orb:
 			self.vel = self.get_orbital_vel(orbiting[0], orbiting[1])
 
 		self.acc = Vec2D(0,0)
-		self.trust = 1.0
+		self.thrust = 500.0
 
 		self.uuid = uuid.uuid4()
 
@@ -34,15 +34,18 @@ class Orb:
                                self.color )
 
 	def set_direction(self, direction):
-		self.acc += direction.set_mag(self.trust)
+		self.apply_force(direction.set_mag(self.thrust))
 
 	def set_pos(self, pos):
 		self.pos = pos
 
-	def apply_force_from(self, other, G):
-		force_vec = self.get_force_applyed(other, G)
+	def apply_force(self, force_vec):
 		acc = force_vec.set_mag(force_vec.get_mag()/self.mass)
 		self.acc += acc
+
+	def apply_force_from(self, other, G):
+		force_vec = self.get_force_applyed(other, G)
+		self.apply_force(force_vec)
 
 	def get_force_applyed(self, other, G):
 		dist_vec = self.get_dist_vec(other)
@@ -77,7 +80,7 @@ class Orb:
 			self.acc = Vec2D(0,0)
 			return
 		direction = Vec2D(-self.vel.x, -self.vel.y)
-		self.acc = direction.set_mag(self.trust*0.8)	
+		self.acc = direction.set_mag(self.thrust*0.8)	
 
 	def get_orbital_vel(self, other, G):
 		dist_vec = self.get_dist_vec(other)
@@ -86,17 +89,14 @@ class Orb:
 		return dist_vec.rotate(math.radians(90)).set_mag(mag)+other.vel
 
 	def orbit(self, other, G):
-		if self == other:
-			return
+		if self == other: return
 
 		o_vel = self.get_orbital_vel(other, G)
 		s_vel = self.vel
 		correction = o_vel - s_vel
+		correction = correction.set_mag(self.thrust)
 
-		if correction.get_mag() > self.trust:
-			correction = correction.set_mag(self.trust)
-
-		self.acc += correction
+		self.apply_force(correction)
 
 	def update(self):
 		self.vel += self.acc
